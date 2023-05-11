@@ -81,9 +81,112 @@ handler._token.post = (requestedProperties, callback) => {
   }
 };
 
-handler._token.get = (requestedProperties, callback) => {};
+handler._token.get = (requestedProperties, callback) => {
+  const id =
+    typeof requestedProperties.queryStringObj.id === "string" &&
+    requestedProperties.queryStringObj.id.trim().length > 0
+      ? requestedProperties.queryStringObj.id
+      : false;
 
-handler._token.put = (requestedProperties, callback) => {};
-handler._token.delete = (requestedProperties, callback) => {};
+  if (id) {
+    //look up the user
+    data.read("tokens", id, (err, tokenData) => {
+      const token = { ...parseJson(tokenData) };
+      if (!err && token) {
+        callback(200, token);
+      } else {
+        callback(400, {
+          error: "Your requested token was not found!",
+        });
+      }
+    });
+  } else {
+    callback(400, {
+      error: "Your requested token was not found",
+    });
+  }
+};
+
+handler._token.put = (requestedProperties, callback) => {
+  const id =
+    typeof requestedProperties.body.id === "string" &&
+    requestedProperties.body.id.trim().length === 20
+      ? requestedProperties.body.id
+      : false;
+
+  const extend =
+    typeof requestedProperties.body.extend === "boolean" &&
+    requestedProperties.body.extend === true
+      ? requestedProperties.body.extend
+      : false;
+
+  if (id && extend) {
+    data.read("tokens", id, (err, tokenData) => {
+      if (!err && tokenData) {
+        const tokenObj = parseJson(tokenData);
+        if (tokenObj.expires > Date.now()) {
+          tokenObj.expires = Date.now() + 60 * 60 * 1000;
+
+          //   store updated data in db
+          data.update("tokens", id, tokenObj, (err2) => {
+            if (!err2) {
+              callback(200, tokenObj);
+            } else {
+              callback(400, {
+                error: "Error, updating token",
+              });
+            }
+          });
+        } else {
+          callback(400, {
+            error: "Your requested token is expired",
+          });
+        }
+      } else {
+        callback(400, {
+          error: "Your requested token was not found",
+        });
+      }
+    });
+  } else {
+    callback(400, {
+      error: "Your requested token was not found",
+    });
+  }
+};
+handler._token.delete = (requestedProperties, callback) => {
+  const id =
+    typeof requestedProperties.queryStringObj.id === "string" &&
+    requestedProperties.queryStringObj.id.trim().length === 20
+      ? requestedProperties.queryStringObj.id
+      : false;
+
+  if (id) {
+    //look up the token
+    data.read("tokens", id, (err, tokenData) => {
+      if (!err && tokenData) {
+        data.delete("tokens", id, (err1) => {
+          if (!err1) {
+            callback(200, {
+              error: "Token, deleted successfully",
+            });
+          } else {
+            callback(500, {
+              error: "Error, deleting token!",
+            });
+          }
+        });
+      } else {
+        callback(500, {
+          error: "Error read token!",
+        });
+      }
+    });
+  } else {
+    callback(400, {
+      error: "Your requested url is not found!",
+    });
+  }
+};
 
 module.exports = handler;
