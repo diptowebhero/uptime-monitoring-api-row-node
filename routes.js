@@ -8,12 +8,16 @@
 //dependencies
 const { simpleRoute } = require("./handlers/routesHandlers/simpleRoute");
 const {
+  tokenRouteHandler,
+} = require("./handlers/routesHandlers/tokenRouteHandler");
+const {
   userRouteHandler,
 } = require("./handlers/routesHandlers/userRouteHandler");
 
 const routes = {
   simple: simpleRoute,
   user: userRouteHandler,
+  token: tokenRouteHandler,
 };
 
 module.exports = routes;
