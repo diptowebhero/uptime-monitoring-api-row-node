@@ -36,7 +36,6 @@ handler.handleReqRes = (req, res) => {
     queryStringObj,
     headers,
   };
-
   const decoder = new StringDecoder("utf-8");
   let realData = "";
 

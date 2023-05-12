@@ -154,6 +154,7 @@ handler._token.put = (requestedProperties, callback) => {
     });
   }
 };
+
 handler._token.delete = (requestedProperties, callback) => {
   const id =
     typeof requestedProperties.queryStringObj.id === "string" &&
@@ -187,6 +188,23 @@ handler._token.delete = (requestedProperties, callback) => {
       error: "Your requested url is not found!",
     });
   }
+};
+
+handler._token.verify = (id, phone, callback) => {
+  data.read("tokens", id, (err, tokenData) => {
+    if (!err && tokenData) {
+      if (
+        parseJson(tokenData).phone === phone &&
+        parseJson(tokenData).expires > Date.now()
+      ) {
+        callback(true);
+      } else {
+        callback(false);
+      }
+    } else {
+      callback(false);
+    }
+  });
 };
 
 module.exports = handler;
