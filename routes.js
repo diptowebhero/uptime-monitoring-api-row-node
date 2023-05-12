@@ -6,6 +6,9 @@
  */
 
 //dependencies
+const {
+  checksRouteHandler,
+} = require("./handlers/routesHandlers/checkRouteHandler");
 const { simpleRoute } = require("./handlers/routesHandlers/simpleRoute");
 const {
   tokenRouteHandler,
@@ -18,6 +21,7 @@ const routes = {
   simple: simpleRoute,
   user: userRouteHandler,
   token: tokenRouteHandler,
+  check: checksRouteHandler,
 };
 
 module.exports = routes;
